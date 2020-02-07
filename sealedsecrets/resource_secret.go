@@ -70,7 +70,6 @@ func resourceSecretCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	// d.SetId(utils.SHA256(ss.ModTime().Format(time.RFC3339)))
 	d.SetId(utils.SHA256(utils.GetFileContent(ssPath)))
 
 	return resourceSecretRead(d, m)
@@ -112,9 +111,12 @@ func resourceSecretRead(d *schema.ResourceData, m interface{}) error {
 		return nil
 	}
 
-	// ss, _ := os.Stat(ssPath)
-	// d.SetId(utils.SHA256(ss.ModTime().Format(time.RFC3339)))
-	d.SetId(utils.SHA256(utils.GetFileContent(ssPath)))
+	oldID := d.Id()
+	newID := utils.SHA256(utils.GetFileContent(ssPath))
+	if oldID != newID {
+		d.SetId("")
+		return nil
+	}
 
 	return nil
 }
@@ -155,7 +157,6 @@ func createSealedSecret(d *schema.ResourceData, mainCmd *Cmd) error {
 		utils.Log(errMsg)
 		return errors.New(errMsg)
 	}
-	// s, _ := os.Stat(sPath)
 
 	cert := d.Get("certificate").(string)
 	if !utils.PathExists(cert) {

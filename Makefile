@@ -11,7 +11,7 @@ GO_GET=$(GO_CMD) get
 all: clean build
 
 build: 
-	$(GO_BUILD) -o $(BINARY_NAME)_${VERSION} -v
+	$(GO_BUILD) -o $(BINARY_NAME)_v${VERSION} -v
 
 test: 
 	$(GO_GET) gotest.tools/gotestsum
