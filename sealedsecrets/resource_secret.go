@@ -137,12 +137,6 @@ func resourceSecretUpdate(d *schema.ResourceData, m interface{}) error {
 		utils.Log(fmt.Sprintf("Failed to delete SealedSecret: %s.%s\n", ns, name))
 	}
 
-	// delete sealed secrets file
-	ssPath := d.Get("sealed_secret_source").(string)
-	if err := os.Remove(ssPath); err != nil {
-		utils.Log("Failed to delete sealed secret file: " + ssPath)
-	}
-
 	return resourceSecretCreate(d, m)
 }
 
