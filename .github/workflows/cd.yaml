@@ -1,0 +1,36 @@
+name: cd
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  cd:
+    name: cd
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-go@v1
+      with:
+        go-version: '1.12'
+
+    - name: set GOPATH
+      run: |
+        echo "##[set-env name=GOPATH;]$(dirname $GITHUB_WORKSPACE)"
+        echo "##[add-path]$(dirname $GITHUB_WORKSPACE)/bin"
+      shell: bash
+
+    - name: build
+      run: |
+        VER=$(echo ${GITHUB_REF} | cut -d'/' -f3 | sed 's/v//g')
+        make build_linux VERSION=$VER
+        make build_darwin VERSION=$VER
+
+    - name: publish
+      uses: softprops/action-gh-release@v1
+      with:
+        files: terraform-provider-sealedsecrets_*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
