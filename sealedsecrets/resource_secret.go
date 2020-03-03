@@ -84,11 +84,11 @@ func resourceSecretDelete(d *schema.ResourceData, m interface{}) error {
 	ns := d.Get("namespace").(string)
 
 	if err := utils.ExecuteCmd(mainCmd.kubectl, "delete", "secret", name, "-n", ns); err != nil {
-		return err
+		utils.Log("Failed to delete secret: " + name)
 	}
 
 	if err := utils.ExecuteCmd(mainCmd.kubectl, "delete", "SealedSecret", name, "-n", ns); err != nil {
-		return err
+		utils.Log("Failed to delete sealed secret: " + name)
 	}
 
 	// delete sealed secrets file
@@ -135,12 +135,6 @@ func resourceSecretUpdate(d *schema.ResourceData, m interface{}) error {
 
 	if err := utils.ExecuteCmd(mainCmd.kubectl, "delete", "SealedSecret", name, "-n", ns); err != nil {
 		utils.Log(fmt.Sprintf("Failed to delete SealedSecret: %s.%s\n", ns, name))
-	}
-
-	// delete sealed secrets file
-	ssPath := d.Get("sealed_secret_source").(string)
-	if err := os.Remove(ssPath); err != nil {
-		utils.Log("Failed to delete sealed secret file: " + ssPath)
 	}
 
 	return resourceSecretCreate(d, m)
